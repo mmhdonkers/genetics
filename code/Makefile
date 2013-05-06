@@ -25,6 +25,7 @@ LINK = $(FC) $(LDFLAGS)
 
 # Files (modules) to link to main program
 OBJS = 
+OBJS += model.o
 OBJS += genetics.o
 
 all: run
