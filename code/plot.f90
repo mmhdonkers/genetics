@@ -4,7 +4,7 @@ module plot
   implicit none
 
   private numtostr
-  public plot_init, plot_close, plot_spin, plot_path
+  public plot_init, plot_close, plot_spin, plot_path, plot_distance
 
 contains
 
@@ -101,5 +101,25 @@ contains
     
     call plcol0(2)
     call plpoin(city(:, 1), city(:, 2), 2)
+  end subroutine
+
+  subroutine plot_distance(avg_distance, min_distance, time)
+    integer,intent(in) :: time
+    real(8),intent(in) :: avg_distance(time), min_distance(time)
+
+    integer :: i
+    real(8) :: plottime(time)
+
+    plottime = [(i * 1d0, i = 1, time)]
+
+    call plcol0(7)
+    call plenv(1d0, time * 1d0, 0d0, maxval(avg_distance), 0, 0)
+    call pllab("t", "distance", "average and minimum distance")
+
+    call plcol0(1)
+    call plline(plottime, min_distance)
+
+    call plcol0(2)
+    call plline(plottime, avg_distance)
   end subroutine
 end module

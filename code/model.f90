@@ -6,8 +6,8 @@ module model
 
   implicit none
 
-  private calcfitness
-  public initiate, crossover, mutation, get_path
+  private calccumfitness, calcfitness
+  public initiate, crossover, mutation, get_path, calcdistance, selection
 
 contains
 
@@ -36,7 +36,42 @@ contains
     end do
   end subroutine
   
-  function calcfitness(Nc, Npop, population, city) result(cum_fitness)
+   function calcdistance(Nc, Npop, population, city) result(distance)
+    integer,intent(in) :: Nc, Npop, population(Npop, Nc)
+    real(8),intent(in) :: city(Nc, 2)
+  
+    integer :: i, j
+    real(8) :: distance(Npop)
+
+    ! Calculate cumulative fitness
+    distance = 0
+    do i = 1, Npop
+      do j = 2, Nc
+        distance(i) = distance(i) + sqrt((city(population(i, j - 1), 1) - city(population(i, j), 1))**2 &
+                    + (city(population(i, j - 1), 2) - city(population(i, j), 2))**2)
+      end do
+    end do
+  end function
+
+  function calcfitness(Nc, Npop, population, city) result(fitness)
+    integer,intent(in) :: Nc, Npop, population(Npop, Nc)
+    real(8),intent(in) :: city(Nc, 2)
+  
+    integer :: i, j
+    real(8) :: distance(Npop), fitness(Npop)
+
+    ! Calculate cumulative fitness
+    distance = 0
+    do i = 1, Npop
+      do j = 2, Nc
+        distance(i) = distance(i) + sqrt((city(population(i, j - 1), 1) - city(population(i, j), 1))**2 &
+                    + (city(population(i, j - 1), 2) - city(population(i, j), 2))**2)
+      end do
+    end do
+    fitness = 1 / distance
+  end function
+
+  function calccumfitness(Nc, Npop, population, city) result(cum_fitness)
     integer,intent(in) :: Nc, Npop, population(Npop, Nc)
     real(8),intent(in) :: city(Nc, 2)
   
@@ -67,7 +102,7 @@ contains
     real(8) :: r, cum_fitness(Npop)
   
     new_pop = -1
-    cum_fitness = calcfitness(Nc, Npop, population, city)
+    cum_fitness = calccumfitness(Nc, Npop, population, city)
 
     do i = 1, Npop
       ! Select random parents
@@ -111,14 +146,20 @@ contains
     integer,intent(inout) :: population(Npop, Nc)
 
     integer :: i, j, temp_pop(2 * Npop, Nc)
-    real(8) :: r, cum_fitness(2 * Npop)
+    real(8) :: r, cum_fitness(2 * Npop), fitness(2 * Npop)
 
-    cum_fitness(1:Npop) = calcfitness(Nc, Npop, population, city)
-    cum_fitness(Npop + 1:2 * Npop) = 1 + calcfitness(Nc, Npop, new_pop, city)
+    cum_fitness(1:Npop) = calccumfitness(Nc, Npop, population, city)
+    cum_fitness(Npop + 1:2 * Npop) = 1 + calccumfitness(Nc, Npop, new_pop, city)
+    fitness(1:Npop) = calcfitness(Nc, Npop, population, city)
+    fitness(Npop + 1:2 * Npop) = calcfitness(Nc, Npop, population, city)
     temp_pop(1:Npop, :) = population
     temp_pop(Npop + 1:2 * Npop, :) = new_pop
 
-    do i = 1, Npop
+    do i = 1, Npop / 20 
+      population(i, :) = temp_pop(maxloc(fitness, 1), :)
+    end do
+
+    do i = Npop / 20 + 1, Npop
       r = rand() * 2
       j = 1
       do while (r .gt. cum_fitness(j))
@@ -137,7 +178,7 @@ contains
 
     do i = 1, Npop
       r = rand()
-      if (r .lt. 0.05) then
+      if (r .lt. 0.1) then
         r1 = floor(rand() * Nc) + 1
         r2 = floor(rand() * Nc) + 1
         temp = population(i, r1)
@@ -154,7 +195,7 @@ contains
     integer :: path(Nc)
     real(8) :: cum_fitness(Npop)
 
-    cum_fitness = calcfitness(Nc, Npop, population, city)
+    cum_fitness = calccumfitness(Nc, Npop, population, city)
 
     path = population(maxloc(cum_fitness, 1), :)
   end function
