@@ -7,7 +7,8 @@ module model
   implicit none
 
   private calccumfitness, calcfitness
-  public initiate, crossover, mutation, get_path, calcdistance, selection
+  public initiate, crossover, mutation, get_path, calcdistance, selection, &
+         readdata
 
 contains
 
@@ -229,4 +230,21 @@ contains
 
     path = population(maxloc(cum_fitness, 1), :)
   end function
+  
+  subroutine readdata(city, Nc)
+    integer,intent(in) :: Nc
+    real(8),intent(out) :: city(Nc,2)
+
+    integer :: i
+    real(8) ::  dummycity(Nc, 3)
+      
+    open(unit=14, file='Qatar.dat', status='old', action='read')
+      
+    do i=1,Nc
+      read(14,*),dummycity(i, :)
+      city(i, :) = dummycity(i, 2:3)
+    end do
+      
+    close(14)  
+  end subroutine
 end module

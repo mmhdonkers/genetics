@@ -89,7 +89,7 @@ contains
     real(8) :: x(2), y(2)
 
     call plcol0(7)
-    call plenv(0d0, 1d0, 0d0, 1d0, 0, 0)
+    call plenv(minval(city(:,1)) - 1d0, maxval(city(:,1)) + 1d0, minval(city(:,2)) - 1d0, maxval(city(:,2)) + 1d0, 0, 0)
     call pllab("x", "y", "Path")
 
     call plcol0(1)
@@ -121,6 +121,8 @@ contains
 
     call plcol0(2)
     call plline(plottime, avg_distance)
+
+    print*,avg_distance(time)
   end subroutine
     
   subroutine plot_dist(distance, N)
@@ -132,7 +134,7 @@ contains
 
     plotN = [(i * 1d0, i = 1, N)]
     do i = 1, N
-      plotD = sum(distance(i, :)) / (N * 1d0)
+      plotD(i) = sum(distance(i, :)) / (N * 1d0)
     end do 
 
     call plcol0(7)
