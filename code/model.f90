@@ -7,7 +7,7 @@ module model
   implicit none
 
   private calcfitness
-  public initiate, crossover
+  public initiate, crossover, mutation, get_path
 
 contains
 
@@ -59,49 +59,103 @@ contains
   end function
 
   subroutine crossover(Nc, Npop, city, population, new_pop)
-  integer,intent(in) :: Nc, Npop, population(Npop, Nc)
-  real(8),intent(in) :: city(Nc, 2)
-  integer,intent(out) :: new_pop(Npop, Nc)
+    integer,intent(in) :: Nc, Npop, population(Npop, Nc)
+    real(8),intent(in) :: city(Nc, 2)
+    integer,intent(out) :: new_pop(Npop, Nc)
 
-  integer :: i, j, k, r1, r2, parents(2, Nc)
-  real(8) :: r, cum_fitness(Npop)
+    integer :: i, j, k, r1, r2, parents(2, Nc)
+    real(8) :: r, cum_fitness(Npop)
   
-  new_pop = -1
-  cum_fitness = calcfitness(Nc, Npop, population, city)
+    new_pop = -1
+    cum_fitness = calcfitness(Nc, Npop, population, city)
 
-  do i = 1, Npop
-    ! Select random parents
-    r = rand()
-    j = 1
-    do while (r .gt. cum_fitness(j))
-      j = j + 1
+    do i = 1, Npop
+      ! Select random parents
+      r = rand()
+      j = 1
+      do while (r .gt. cum_fitness(j))
+        j = j + 1
+      end do
+      parents(1, :) = population(j, :)
+      r = rand()
+      j = 1
+      do while (r .gt. cum_fitness(j))
+        j = j + 1
+      end do
+      parents(2, :) = population(j, :)
+
+      ! Create children
+      r1 = floor(rand() * Nc) + 1
+      r2 = floor(rand() * Nc) + 1
+      if (r1 .lt. r2) then
+        new_pop(i,r1:r2) = parents(1, r1:r2)
+      else
+        new_pop(i,r2:r1) = parents(1, r2:r1) 
+      end if
+
+      do j = 1, Nc
+        if (.not.any(parents(2,j) .eq. new_pop(i,:))) then
+          k = 1
+          do while (new_pop(i,k) .ne. -1)
+            k = k + 1
+          end do
+          new_pop(i,k) = parents(2,j)
+        end if
+      end do
     end do
-    parents(1, :) = population(j, :)
-    r = rand()
-    j = 1
-    do while (r .gt. cum_fitness(j))
-      j = j + 1
+  end subroutine
+
+  subroutine selection(Nc, Npop, city, population, new_pop)
+    integer,intent(in) :: Nc, Npop, new_pop(Npop, Nc)
+    real(8),intent(in) :: city(Nc, 2)
+    integer,intent(inout) :: population(Npop, Nc)
+
+    integer :: i, j, temp_pop(2 * Npop, Nc)
+    real(8) :: r, cum_fitness(2 * Npop)
+
+    cum_fitness(1:Npop) = calcfitness(Nc, Npop, population, city)
+    cum_fitness(Npop + 1:2 * Npop) = 1 + calcfitness(Nc, Npop, new_pop, city)
+    temp_pop(1:Npop, :) = population
+    temp_pop(Npop + 1:2 * Npop, :) = new_pop
+
+    do i = 1, Npop
+      r = rand() * 2
+      j = 1
+      do while (r .gt. cum_fitness(j))
+        j = j + 1
+      end do
+      population(i, :) = temp_pop(j, :)
     end do
-    parents(2, :) = population(j, :)
+  end subroutine
 
-    ! Create children
-    r1 = floor(rand() * Nc) + 1
-    r2 = floor(rand() * Nc) + 1
-    if (r1 .lt. r2) then
-      new_pop(i,r1:r2) = parents(1, r1:r2)
-    else
-      new_pop(i,r2:r1) = parents(1, r2:r1) 
-    end if
+  subroutine mutation(Nc, Npop, population)
+    integer,intent(in) :: Nc, Npop
+    integer,intent(inout) :: population(Npop, Nc)
 
-    do j = 1, Nc
-      if (.not.any(parents(2,j) .eq. new_pop(i,:))) then
-        k = 1
-        do while (new_pop(i,k) .ne. -1)
-          k = k + 1
-        end do
-        new_pop(i,k) = parents(2,j)
+    integer :: i, temp, r1, r2
+    real(8) :: r
+
+    do i = 1, Npop
+      r = rand()
+      if (r .lt. 0.05) then
+        r1 = floor(rand() * Nc) + 1
+        r2 = floor(rand() * Nc) + 1
+        temp = population(i, r1)
+        population(i, r1) = population(i, r2)
+        population(i, r2) = temp
       end if
     end do
-  end do
   end subroutine
+
+  function get_path(Nc, Npop, population, city) result(path)
+    integer,intent(in) :: Nc, Npop, population(Npop, Nc)
+    real(8),intent(in) :: city(Nc)
+
+    integer :: path(Nc)
+    real(8) :: cum_fitness(Npop)
+
+    cum_fitness = calcfitness(Nc, Npop, population, city)
+
+    path = population(maxloc(cum_fitness, 1), :)
+  end function
 end module
