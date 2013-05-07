@@ -8,7 +8,7 @@ module model
 
   private calccumfitness, calcfitness
   public initiate, crossover, mutation, get_path, calcdistance, selection, &
-         readdata
+         readdata, writedata
 
 contains
 
@@ -37,7 +37,7 @@ contains
     end do
   end subroutine
   
-   function calcdistance(Nc, Npop, population, city) result(distance)
+  function calcdistance(Nc, Npop, population, city) result(distance)
     integer,intent(in) :: Nc, Npop, population(Npop, Nc)
     real(8),intent(in) :: city(Nc, 2)
   
@@ -224,11 +224,11 @@ contains
     real(8),intent(in) :: city(Nc)
 
     integer :: path(Nc)
-    real(8) :: cum_fitness(Npop)
+    real(8) :: fitness(Npop)
 
-    cum_fitness = calccumfitness(Nc, Npop, population, city)
+    fitness = calcfitness(Nc, Npop, population, city)
 
-    path = population(maxloc(cum_fitness, 1), :)
+    path = population(maxloc(fitness, 1), :)
   end function
   
   subroutine readdata(city, Nc)
@@ -242,9 +242,31 @@ contains
       
     do i=1,Nc
       read(14,*),dummycity(i, :)
-      city(i, :) = dummycity(i, 2:3)
+      city(i, 1) = dummycity(i, 3)
+      city(i, 2) = dummycity(i, 2)
     end do
       
     close(14)  
+  end subroutine
+
+  subroutine writedata(Nc, Npop, population, city)
+    integer,intent(in) :: Nc, Npop, population(Npop, Nc)
+    real(8),intent(in) :: city(Nc)
+
+    integer :: i, io
+    real(8) :: fitness(Npop)
+
+    fitness = calcfitness(Nc, Npop, population, city)
+
+    open(unit=15, file='path.dat', status='replace', iostat = io)
+    if (io /= 0) then
+      STOP "------------Error, swenwang_temp file not opened properly------------"
+    endif
+
+    do i = 1, Nc
+      write(15,*) population(maxloc(fitness, 1), i)
+    end do
+
+    close(15)
   end subroutine
 end module

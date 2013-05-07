@@ -101,6 +101,8 @@ contains
     
     call plcol0(2)
     call plpoin(city(:, 1), city(:, 2), 2)
+    
+    call plspause(.false.)
   end subroutine
 
   subroutine plot_distance(avg_distance, min_distance, time)
@@ -122,7 +124,9 @@ contains
     call plcol0(2)
     call plline(plottime, avg_distance)
 
-    print*,avg_distance(time)
+    call plspause(.true.)
+
+    print*,min_distance(time)
   end subroutine
     
   subroutine plot_dist(distance, N)
