@@ -123,9 +123,9 @@ contains
       r1 = floor(rand() * Nc) + 1
       r2 = floor(rand() * Nc) + 1
       if (r1 .lt. r2) then
-        new_pop(i,r1:r2) = parents(1, r1:r2)
+        new_pop(i, r1:r2) = parents(1, r1:r2)
       else
-        new_pop(i,r2:r1) = parents(1, r2:r1) 
+        new_pop(i, r2:r1) = parents(1, r2:r1) 
       end if
 
       do j = 1, Nc
@@ -173,17 +173,47 @@ contains
     integer,intent(in) :: Nc, Npop
     integer,intent(inout) :: population(Npop, Nc)
 
-    integer :: i, temp, r1, r2
+    integer :: i, j, k, temp, r1, r2, r3, new_pop(Nc)
     real(8) :: r
 
     do i = 1, Npop
-      r = rand()
+      r = 1
       if (r .lt. 0.1) then
         r1 = floor(rand() * Nc) + 1
         r2 = floor(rand() * Nc) + 1
         temp = population(i, r1)
         population(i, r1) = population(i, r2)
         population(i, r2) = temp
+      end if
+      r = rand()
+      if (r .lt. 0.2) then
+        r1 = floor(rand() * Nc) + 1
+        r2 = floor(rand() * Nc) + 1
+        new_pop = population(i, :)
+        do j = 0, abs(r1 - r2)
+          population(i, min(r1, r2) + j) = new_pop(max(r1, r2) - j)
+        end do
+      end if
+      r = rand()
+      if (r .lt. 0.2) then
+        new_pop = -1
+        r1 = floor(rand() * Nc) + 1
+        r2 = floor(rand() * Nc) + 1
+        r3 = floor(rand() * (Nc - abs(r1 - r2))) + 1
+        do j = 0, abs(r1 - r2)
+          new_pop(r3 + j) = population(i, min(r1, r2) + j)
+        end do
+
+        do j = 1, Nc
+          if (.not.any(population(i, j) .eq. new_pop)) then
+            k = 1
+            do while (new_pop(k) .ne. -1)
+              k = k + 1
+            end do
+            new_pop(k) = population(i, j)
+          end if
+        end do
+        population(i, :) = new_pop
       end if
     end do
   end subroutine

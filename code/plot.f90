@@ -122,4 +122,24 @@ contains
     call plcol0(2)
     call plline(plottime, avg_distance)
   end subroutine
+    
+  subroutine plot_dist(distance, N)
+    integer,intent(in) :: N
+    real(8),intent(in) :: distance(N, 10)
+
+    integer :: i
+    real(8) :: plotN(N), plotD(N)
+
+    plotN = [(i * 1d0, i = 1, N)]
+    do i = 1, N
+      plotD = sum(distance(i, :)) / (N * 1d0)
+    end do 
+
+    call plcol0(7)
+    call plenv(1d0, N * 1d0, 0d0, maxval(distance), 0, 0)
+    call pllab("# cities", "average distance", "average distance")
+
+    call plcol0(1)
+    call plline(plotN, plotD)
+  end subroutine
 end module
