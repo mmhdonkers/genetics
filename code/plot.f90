@@ -93,6 +93,9 @@ contains
     call pllab("x", "y", "Path")
 
     call plcol0(1)
+    x = [city(path(1), 1), city(path(Nc), 1)]
+    y = [city(path(1), 2), city(path(Nc), 2)]
+    call plline(x, y)
     do i = 2, Nc
       x = [city(path(i - 1), 1), city(path(i), 1)]
       y = [city(path(i - 1), 2), city(path(i), 2)]
@@ -100,7 +103,7 @@ contains
     end do
     
     call plcol0(2)
-    call plpoin(city(:, 1), city(:, 2), 2)
+    call plpoin(city(:, 1), city(:, 2), 1)
     
     call plspause(.false.)
   end subroutine

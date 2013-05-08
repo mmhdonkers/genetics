@@ -24,7 +24,7 @@ program genetics
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Declarations !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  integer,parameter :: Nc = 194, Npop = 5000, time = 2000
+  integer,parameter :: Nc = 194, Npop = 10000, time = 4000
   integer :: count, t
   integer :: population(Npop, Nc), new_pop(Npop, Nc)
   real(8) :: city(Nc, 2), min_distance(time), avg_distance(time)

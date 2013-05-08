@@ -47,6 +47,8 @@ contains
     ! Calculate cumulative fitness
     distance = 0
     do i = 1, Npop
+      distance(i) = sqrt((city(population(i, 1), 1) - city(population(i, Nc), 1))**2 &
+                    + (city(population(i, 1), 2) - city(population(i, Nc), 2))**2)
       do j = 2, Nc
         distance(i) = distance(i) + sqrt((city(population(i, j - 1), 1) - city(population(i, j), 1))**2 &
                     + (city(population(i, j - 1), 2) - city(population(i, j), 2))**2)
@@ -64,6 +66,8 @@ contains
     ! Calculate cumulative fitness
     distance = 0
     do i = 1, Npop
+      distance(i) = sqrt((city(population(i, 1), 1) - city(population(i, Nc), 1))**2 &
+                    + (city(population(i, 1), 2) - city(population(i, Nc), 2))**2)
       do j = 2, Nc
         distance(i) = distance(i) + sqrt((city(population(i, j - 1), 1) - city(population(i, j), 1))**2 &
                     + (city(population(i, j - 1), 2) - city(population(i, j), 2))**2)
@@ -82,6 +86,8 @@ contains
     ! Calculate cumulative fitness
     distance = 0
     do i = 1, Npop
+      distance(i) = sqrt((city(population(i, 1), 1) - city(population(i, Nc), 1))**2 &
+                    + (city(population(i, 1), 2) - city(population(i, Nc), 2))**2)
       do j = 2, Nc
         distance(i) = distance(i) + sqrt((city(population(i, j - 1), 1) - city(population(i, j), 1))**2 &
                     + (city(population(i, j - 1), 2) - city(population(i, j), 2))**2)
@@ -178,8 +184,8 @@ contains
     real(8) :: r
 
     do i = 1, Npop
-      r = 1
-      if (r .lt. 0.1) then
+      r = rand()
+      if (r .lt. 0.4) then
         r1 = floor(rand() * Nc) + 1
         r2 = floor(rand() * Nc) + 1
         temp = population(i, r1)
@@ -187,7 +193,7 @@ contains
         population(i, r2) = temp
       end if
       r = rand()
-      if (r .lt. 0.2) then
+      if (r .lt. 0.4) then
         r1 = floor(rand() * Nc) + 1
         r2 = floor(rand() * Nc) + 1
         new_pop = population(i, :)
@@ -196,7 +202,7 @@ contains
         end do
       end if
       r = rand()
-      if (r .lt. 0.2) then
+      if (r .lt. 0.4) then
         new_pop = -1
         r1 = floor(rand() * Nc) + 1
         r2 = floor(rand() * Nc) + 1
