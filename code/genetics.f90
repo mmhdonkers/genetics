@@ -24,8 +24,8 @@ program genetics
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Declarations !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  integer,parameter :: Nc = 194, Npop = 10000, time = 4000
-  integer :: count, t
+  integer,parameter :: Nc = 50, Npop = 1000, time = 200
+  integer :: count, t, N, j
   integer :: population(Npop, Nc), new_pop(Npop, Nc)
   real(8) :: city(Nc, 2), min_distance(time), avg_distance(time)
 
@@ -33,12 +33,13 @@ program genetics
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Main Body !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
-  call plot_init()
   call system_clock(count)
   call srand(count)
         
-  call initiate(Nc, Npop, city, population)
-  call readdata(city, Nc)
+N = 10
+do j = 1, N
+  call initiate(Nc, Npop, city, population, count)
+  !call readdata(city, Nc)
   do t = 1, time
     print*, t
     call crossover(Nc, Npop, city, population, new_pop) 
@@ -46,11 +47,7 @@ program genetics
     call selection(Nc, Npop, city, population, new_pop)
     avg_distance(t) = sum(calcdistance(Nc, Npop, population, city)) / Npop
     min_distance(t) = minval(calcdistance(Nc, Npop, population, city))
-    if (mod(t, 50) .eq. 0) call plot_path(Nc, get_path(Nc, Npop, population, city), city)
   end do
-
-  call plot_distance(avg_distance, min_distance, time)
-!  call plot_close()
-  call plend()
-  call writedata(Nc, Npop, population, city)
+  call writedata(Nc, Npop, population, city, avg_distance, min_distance, time, j)
+end do
 end program genetics

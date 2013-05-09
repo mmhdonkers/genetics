@@ -12,18 +12,20 @@ module model
 
 contains
 
-  subroutine initiate(Nc, Npop, city, population)
-    integer,intent(in) :: Nc, Npop
+  subroutine initiate(Nc, Npop, city, population, cout)
+    integer,intent(in) :: Nc, Npop, cout
     integer,intent(out) :: population(Npop, Nc)
     real(8),intent(out) :: city(Nc, 2)
 
     integer :: i, j, k, temp_pop(Nc), temp    
 
+    call srand(3)
     ! Generate city locations
     do i = 1, Nc
       city(i,:) = [rand(), rand()]
     end do
 
+    call srand(cout)
     ! Generate populations
     do i = 1, Npop
       temp_pop = [(j, j = 1, Nc)]
@@ -255,24 +257,39 @@ contains
     close(14)  
   end subroutine
 
-  subroutine writedata(Nc, Npop, population, city)
-    integer,intent(in) :: Nc, Npop, population(Npop, Nc)
-    real(8),intent(in) :: city(Nc)
+  subroutine writedata(Nc, Npop, population, city, avg_distance, min_distance, time, N)
+    integer,intent(in) :: Nc, Npop, population(Npop, Nc), time, N
+    real(8),intent(in) :: city(Nc, 2), avg_distance(time), min_distance(time)
 
-    integer :: i, io
+    integer :: i
     real(8) :: fitness(Npop)
 
     fitness = calcfitness(Nc, Npop, population, city)
 
-    open(unit=15, file='path.dat', status='replace', iostat = io)
-    if (io /= 0) then
-      STOP "------------Error, swenwang_temp file not opened properly------------"
-    endif
+    open(unit=15, file='path_' // trim(numtostr(N)) // '.dat', status='replace')
+    open(unit=16, file='dist_' // trim(numtostr(N)) // '.dat', status='replace')
+    open(unit=17, file='city.dat', status='replace')
 
     do i = 1, Nc
       write(15,*) population(maxloc(fitness, 1), i)
     end do
 
+    do i = 1, time
+      write(16,*) min_distance(i), avg_distance(i)
+    end do
+
+    do i = 1, Nc
+      write(17,*) city(i, 1), city(i, 2)
+    end do
+
     close(15)
+    close(16)
+    close(17)
   end subroutine
+  
+  character(len=25) function numtostr(num) result(str)
+    integer,intent(in) :: num
+
+    write(str, '(I2.2)') num
+  end function
 end module
