@@ -6,9 +6,9 @@ module model
 
   implicit none
 
-  private calccumfitness, calcfitness
+  private calccumfitness
   public initiate, crossover, mutation, get_path, calcdistance, selection, &
-         readdata, writedata
+         readdata, writedata, calcfitness
 
 contains
 
@@ -257,8 +257,8 @@ contains
     close(14)  
   end subroutine
 
-  subroutine writedata(Nc, Npop, population, city, avg_distance, min_distance, time, N, l)
-    integer,intent(in) :: Nc, Npop, population(Npop, Nc), time, N, l
+  subroutine writedata(Nc, Npop, population, city, avg_distance, min_distance, time)
+    integer,intent(in) :: Nc, Npop, population(Npop, Nc), time
     real(8),intent(in) :: city(Nc, 2), avg_distance(time), min_distance(time)
 
     integer :: i
@@ -266,10 +266,8 @@ contains
 
     fitness = calcfitness(Nc, Npop, population, city)
 
-    open(unit=15, file='path_' // trim(numtostr(N)) // '_' // trim(numtostr(Npop)) // '_' // &
-              trim(numtostr(time)) // '_' // trim(numtostr(l)) // '.dat', status='replace')
-    open(unit=16, file='dist_' // trim(numtostr(N)) // '_' // trim(numtostr(Npop)) // '_' // &
-              trim(numtostr(time)) // '_' // trim(numtostr(l)) // '.dat', status='replace')
+    open(unit=15, file='path.dat', status='replace')
+    open(unit=16, file='dist.dat', status='replace')
     open(unit=17, file='city.dat', status='replace')
 
     do i = 1, Nc

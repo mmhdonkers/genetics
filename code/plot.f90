@@ -89,7 +89,7 @@ contains
     real(8) :: x(2), y(2)
 
     call plcol0(7)
-    call plenv(0d0, 1d0, 0d0, 1d0, 0, 0)
+    call plenv(minval(city(:, 1)) - 1d0, maxval(city(:, 1)) + 1d0, minval(city(:, 2)) - 1d0, maxval(city(:, 2)) + 1d0, 0, 0)
     call pllab("x", "y", "Path")
 
     call plcol0(1)
