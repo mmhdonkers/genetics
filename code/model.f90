@@ -178,8 +178,8 @@ contains
     end do
   end subroutine
 
-  subroutine mutation(Nc, Npop, population)
-    integer,intent(in) :: Nc, Npop
+  subroutine mutation(Nc, Npop, population, m)
+    integer,intent(in) :: Nc, Npop, m
     integer,intent(inout) :: population(Npop, Nc)
 
     integer :: i, j, k, temp, r1, r2, r3, new_pop(Nc)
@@ -187,7 +187,7 @@ contains
 
     do i = 1, Npop
       r = rand()
-      if (r .lt. 0.4) then
+      if (r .lt. m / 100d0) then
         r1 = floor(rand() * Nc) + 1
         r2 = floor(rand() * Nc) + 1
         temp = population(i, r1)
@@ -195,7 +195,7 @@ contains
         population(i, r2) = temp
       end if
       r = rand()
-      if (r .lt. 0.4) then
+      if (r .lt. m / 100d0) then
         r1 = floor(rand() * Nc) + 1
         r2 = floor(rand() * Nc) + 1
         new_pop = population(i, :)
@@ -204,7 +204,7 @@ contains
         end do
       end if
       r = rand()
-      if (r .lt. 0.4) then
+      if (r .lt. m / 100d0) then
         new_pop = -1
         r1 = floor(rand() * Nc) + 1
         r2 = floor(rand() * Nc) + 1
@@ -257,8 +257,8 @@ contains
     close(14)  
   end subroutine
 
-  subroutine writedata(Nc, Npop, population, city, avg_distance, min_distance, time, N)
-    integer,intent(in) :: Nc, Npop, population(Npop, Nc), time, N
+  subroutine writedata(Nc, Npop, population, city, avg_distance, min_distance, time, N, l)
+    integer,intent(in) :: Nc, Npop, population(Npop, Nc), time, N, l
     real(8),intent(in) :: city(Nc, 2), avg_distance(time), min_distance(time)
 
     integer :: i
@@ -266,8 +266,10 @@ contains
 
     fitness = calcfitness(Nc, Npop, population, city)
 
-    open(unit=15, file='path_' // trim(numtostr(N)) // '.dat', status='replace')
-    open(unit=16, file='dist_' // trim(numtostr(N)) // '.dat', status='replace')
+    open(unit=15, file='path_' // trim(numtostr(N)) // '_' // trim(numtostr(Npop)) // '_' // &
+              trim(numtostr(time)) // '_' // trim(numtostr(l)) // '.dat', status='replace')
+    open(unit=16, file='dist_' // trim(numtostr(N)) // '_' // trim(numtostr(Npop)) // '_' // &
+              trim(numtostr(time)) // '_' // trim(numtostr(l)) // '.dat', status='replace')
     open(unit=17, file='city.dat', status='replace')
 
     do i = 1, Nc
@@ -290,6 +292,6 @@ contains
   character(len=25) function numtostr(num) result(str)
     integer,intent(in) :: num
 
-    write(str, '(I2.2)') num
+    write(str, '(I5.2)') num
   end function
 end module
